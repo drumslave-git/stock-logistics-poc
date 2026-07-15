@@ -81,7 +81,7 @@ Hash algorithm: **SHA-256 via the built-in Web Crypto API** (`crypto.subtle.dige
 
 Concrete wiring (`src/lib/auth.ts` + `src/components/AccessGate.tsx`):
 
-- Embedded hash env var: **`VITE_ACCESS_TOKEN_HASH`**, fed from the GitHub Actions secret **`ACCESS_TOKEN_HASH`** at build time. Compute it with `npm run hash-token -- "<token>"`.
+- Embedded hash env var: **`VITE_ACCESS_TOKEN_HASH`**. The deploy workflow derives it by hashing the raw **`ACCESS_TOKEN`** GitHub Actions secret at build time (via `scripts/hash-token.mjs`), so the token itself never enters the build — only its hash does. Locally, compute the hash directly with `npm run hash-token -- "<token>"` and set `VITE_ACCESS_TOKEN_HASH`. Hashing must stay at/before build time, not in app code: computing it in the browser would require shipping the raw token in the bundle, defeating the gate.
 - **When no hash is embedded the gate is open** — so local dev (no secret) runs unguarded; only the deployed build with the secret set is gated.
 - The `localStorage` remember stores the *matched hash* (key `slp.access.hash`), so **rotating the token invalidates every remembered unlock** automatically, since the stored value no longer equals the current embedded hash.
 

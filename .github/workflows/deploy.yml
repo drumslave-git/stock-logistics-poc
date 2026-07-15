@@ -32,12 +32,23 @@ jobs:
       - run: npm run lint
       - run: npm run test
 
+      # Hash the raw token secret here so only its SHA-256 (not the token) ever
+      # reaches the build. Empty secret → empty hash → gate stays open.
+      # The hash is not sensitive (it ships in the bundle), so GITHUB_OUTPUT is fine.
+      - name: Compute access token hash
+        id: token
+        env:
+          TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "hash=$(node scripts/hash-token.mjs)" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build
         run: npm run build
         env:
-          # Secrets → build-time Vite env. The raw token is never stored; only
-          # its SHA-256 hash is embedded (see docs/ADR.md → "Access gating").
-          VITE_ACCESS_TOKEN_HASH: ${{ secrets.ACCESS_TOKEN_HASH }}
+          # Only the token's SHA-256 hash is embedded (see docs/ADR.md → "Access gating").
+          VITE_ACCESS_TOKEN_HASH: ${{ steps.token.outputs.hash }}
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
       # Disable Jekyll processing of the static output.
