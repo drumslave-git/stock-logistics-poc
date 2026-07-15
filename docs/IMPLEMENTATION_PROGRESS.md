@@ -6,11 +6,11 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 
 ## 1. Project setup
 
-- [ ] Scaffold Vite + React + TypeScript
-- [ ] Tailwind CSS (design tokens in config)
-- [ ] React Router (HashRouter)
-- [ ] Vitest + React Testing Library
-- [ ] Lint/format (ESLint + Prettier)
+- [x] Scaffold Vite + React + TypeScript
+- [x] Tailwind CSS (design tokens in config)
+- [x] React Router (HashRouter)
+- [x] Vitest + React Testing Library
+- [x] Lint/format (ESLint + Prettier)
 
 ## 2. UI kit
 
