@@ -1,4 +1,4 @@
-import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
+import { AdvancedMarker, APIProvider, Map } from '@vis.gl/react-google-maps';
 import type { GeoLocation } from '../domain/types';
 import { Button, cn } from '../ui';
 
@@ -22,6 +22,10 @@ export interface StockMapProps {
 
 // Read once at module load — the key is a build-time env var (see docs/ADR.md).
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+// Advanced markers require a Map ID. Fall back to Google's public demo ID so the
+// map renders with no extra setup; override with a styled Map ID for production.
+const mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
 
 function centroid(markers: MapMarker[]): GeoLocation {
   if (markers.length === 0) return { lat: 44.5, lng: 31 }; // central Black Sea
@@ -47,13 +51,14 @@ export function StockMap({ markers, center, zoom = 6, onSelect, className }: Sto
     <div className={cn('overflow-hidden rounded-card border border-surface-border', className)}>
       <APIProvider apiKey={apiKey}>
         <Map
+          mapId={mapId}
           defaultCenter={center ?? centroid(markers)}
           defaultZoom={zoom}
           gestureHandling="greedy"
           style={{ width: '100%', height: '100%' }}
         >
           {markers.map((m) => (
-            <Marker
+            <AdvancedMarker
               key={m.id}
               position={m.location}
               title={m.name}
