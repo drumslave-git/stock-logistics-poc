@@ -37,17 +37,19 @@ All in `src/ui/` behind the `src/ui/index.ts` barrel; unit-tested (Button, Input
 
 ## 4. Pages
 
-- [ ] Stocks list: name, total items, "low on" (< 10) per stock
-- [ ] Stock details: name, Google Maps location, item list with quantity, count input + "add to order"
-- [ ] Map: pins for all stocks, pin → stock details
-- [ ] Order confirmation: item list, source-stock allocation, delivery info, confirm
+- [x] Stocks list: name, total items, "low on" (< 10) per stock — `src/pages/StocksPage.tsx` (+ "reset demo data" control)
+- [x] Stock details: name, Google Maps location, item list with quantity, count input + "add to order" — `src/pages/StockDetailsPage.tsx`
+- [x] Map: pins for all stocks, pin → stock details — `src/pages/MapPage.tsx`
+- [x] Order confirmation: item list, source-stock allocation, delivery info, confirm — `src/pages/OrderPage.tsx`
+
+Shared page infra: `src/hooks/useAsync.ts` (loading/error/data + reload), `src/components/StockMap.tsx` (Google Map via `@vis.gl/react-google-maps`; degrades to an informative, still-navigable fallback when `VITE_GOOGLE_MAPS_API_KEY` is absent), `src/lib/format.ts` (duration/distance/weight). Pages mounted on the routes in `src/App.tsx`.
 
 ## 5. Order flow
 
-- [ ] Cart entity in IndexedDB via the simulated API (add items from stock details, target stock = viewed stock; survives reload)
-- [ ] Source-stock candidates + user allocation UI (allocation capped at availability; confirm disabled until fully allocated)
-- [ ] Vehicles-needed and duration display
-- [ ] Confirm → apply inventory changes via simulated API
+- [x] Cart entity in IndexedDB via the simulated API (add items from stock details, target stock = viewed stock; survives reload) — `getCart`/`addToCart`/`removeCartLine`/`clearCart` in `src/api/index.ts`; adding for a different target starts a fresh cart (single-target orders)
+- [x] Source-stock candidates + user allocation UI (allocation capped at availability; confirm disabled until fully allocated) — `getOrderPlan` + `OrderPage` (auto-allocates greedily from highest-stocked sources as a starting point)
+- [x] Vehicles-needed and duration display — live `estimateDelivery` readout on `OrderPage`
+- [x] Confirm → apply inventory changes via simulated API — `placeOrder` (clears the cart on success)
 
 ## 6. Access gate & deploy
 
@@ -57,8 +59,8 @@ All in `src/ui/` behind the `src/ui/index.ts` barrel; unit-tested (Button, Input
 
 ## 7. Tests
 
-- [ ] Delivery calculation (vehicle count, duration)
-- [ ] Low-stock computation
-- [ ] Cart / order logic
-- [ ] Simulated API against in-memory / fake IndexedDB
-- [ ] Key page components (RTL)
+- [x] Delivery calculation (vehicle count, duration) — `src/domain/delivery.test.ts`
+- [x] Low-stock computation — asserted in `src/api/index.test.ts` (`getStocks` low-stock) and surfaced in `StocksPage`
+- [x] Cart / order logic — `src/api/index.test.ts` (cart, order-plan, place-order) + `src/pages/OrderPage.test.tsx`
+- [x] Simulated API against in-memory / fake IndexedDB — `src/api/index.test.ts` (`fake-indexeddb`, now global via `src/test/setup.ts`)
+- [x] Key page components (RTL) — `src/pages/StocksPage.test.tsx`, `src/pages/OrderPage.test.tsx`

@@ -148,6 +148,44 @@ export interface StockItemView {
   isLow: boolean;
 }
 
+/** A resolved cart line: the item entity plus the desired quantity. */
+export interface CartLineView {
+  item: Item;
+  quantity: number;
+}
+
+/** The current cart, resolved for display (target name + item entities). */
+export interface CartView {
+  targetStockId: string;
+  targetStockName: string;
+  lines: CartLineView[];
+}
+
+/** A stock that can supply an ordered item, with how much it currently holds. */
+export interface SourceCandidate {
+  stockId: string;
+  stockName: string;
+  available: number;
+}
+
+/** One order line with the source stocks that could fulfil it. */
+export interface OrderPlanLine {
+  item: Item;
+  quantity: number;
+  candidates: SourceCandidate[];
+}
+
+/**
+ * The order-confirmation payload: the cart plus, per line, the candidate source
+ * stocks the user allocates across. Powers the allocation UI (see docs/ADR.md →
+ * "Order flow").
+ */
+export interface OrderPlan {
+  targetStockId: string;
+  targetStockName: string;
+  lines: OrderPlanLine[];
+}
+
 /** Full stock-details payload: the stock plus its resolved inventory. */
 export interface StockDetail extends Stock {
   items: StockItemView[];

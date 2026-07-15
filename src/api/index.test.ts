@@ -1,12 +1,17 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  addToCart,
   ApiError,
+  clearCart,
   estimateDelivery,
+  getCart,
   getItems,
+  getOrderPlan,
   getStock,
   getStocks,
   placeOrder,
+  removeCartLine,
   resetData,
 } from './index';
 import { LOW_STOCK_THRESHOLD } from '../domain/constants';
@@ -122,6 +127,90 @@ describe('placeOrder', () => {
         ],
       }),
     ).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe('cart', () => {
+  it('accumulates lines and merges repeated adds of the same item', async () => {
+    const target = stockFixtures[0];
+    await addToCart(target.id, itemFixtures[0].id, 2);
+    await addToCart(target.id, itemFixtures[1].id, 1);
+    await addToCart(target.id, itemFixtures[0].id, 3); // merge
+
+    const cart = await getCart();
+    expect(cart).not.toBeNull();
+    expect(cart!.targetStockId).toBe(target.id);
+    expect(cart!.lines).toHaveLength(2);
+    const first = cart!.lines.find((l) => l.item.id === itemFixtures[0].id);
+    expect(first!.quantity).toBe(5);
+  });
+
+  it('starts a fresh cart when items are added for a different target stock', async () => {
+    await addToCart(stockFixtures[0].id, itemFixtures[0].id, 2);
+    await addToCart(stockFixtures[1].id, itemFixtures[2].id, 1);
+
+    const cart = await getCart();
+    expect(cart!.targetStockId).toBe(stockFixtures[1].id);
+    expect(cart!.lines).toHaveLength(1);
+    expect(cart!.lines[0].item.id).toBe(itemFixtures[2].id);
+  });
+
+  it('rejects a non-positive quantity', async () => {
+    await expect(addToCart(stockFixtures[0].id, itemFixtures[0].id, 0)).rejects.toBeInstanceOf(
+      ApiError,
+    );
+  });
+
+  it('removes a line and clears the cart', async () => {
+    const target = stockFixtures[0];
+    await addToCart(target.id, itemFixtures[0].id, 1);
+    await addToCart(target.id, itemFixtures[1].id, 1);
+
+    const afterRemove = await removeCartLine(itemFixtures[0].id);
+    expect(afterRemove!.lines).toHaveLength(1);
+
+    await clearCart();
+    expect(await getCart()).toBeNull();
+  });
+});
+
+describe('getOrderPlan', () => {
+  it('lists candidate source stocks excluding the target, with availability', async () => {
+    const target = stockFixtures[0];
+    const itemId = itemFixtures[0].id;
+    await addToCart(target.id, itemId, 4);
+
+    const plan = await getOrderPlan();
+    expect(plan).not.toBeNull();
+    expect(plan!.targetStockId).toBe(target.id);
+    expect(plan!.lines).toHaveLength(1);
+
+    const line = plan!.lines[0];
+    expect(line.candidates.every((c) => c.stockId !== target.id)).toBe(true);
+    expect(line.candidates.every((c) => c.available > 0)).toBe(true);
+    // Sorted by availability descending.
+    const avail = line.candidates.map((c) => c.available);
+    expect(avail).toEqual([...avail].sort((a, b) => b - a));
+  });
+
+  it('returns null when the cart is empty', async () => {
+    expect(await getOrderPlan()).toBeNull();
+  });
+});
+
+describe('placeOrder clears the cart', () => {
+  it('empties the cart after a successful order', async () => {
+    const source = stockFixtures[2];
+    const target = stockFixtures[0];
+    const itemId = itemFixtures[0].id;
+
+    await addToCart(target.id, itemId, 1);
+    await placeOrder({
+      targetStockId: target.id,
+      lines: [{ itemId, quantity: 1, allocations: [{ sourceStockId: source.id, quantity: 1 }] }],
+    });
+
+    expect(await getCart()).toBeNull();
   });
 });
 

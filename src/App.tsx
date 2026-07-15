@@ -1,29 +1,34 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import StocksPage from './pages/StocksPage';
+import StockDetailsPage from './pages/StockDetailsPage';
+import MapPage from './pages/MapPage';
+import OrderPage from './pages/OrderPage';
+import { Button, EmptyState, PageLayout } from './ui';
+import { useNavigate } from 'react-router-dom';
 
-/**
- * Application routing shell. Pages are stubbed during scaffolding (Section 1)
- * and filled in under Section 4 of the implementation progress.
- */
+/** Application routing shell. Pages compose the UI kit and talk to the API. */
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/stocks" replace />} />
-      <Route path="/stocks" element={<Placeholder title="Stocks" />} />
-      <Route path="/stocks/:id" element={<Placeholder title="Stock details" />} />
-      <Route path="/map" element={<Placeholder title="Map" />} />
-      <Route path="/order" element={<Placeholder title="Order" />} />
-      <Route path="*" element={<Placeholder title="Not found" />} />
+      <Route path="/stocks" element={<StocksPage />} />
+      <Route path="/stocks/:id" element={<StockDetailsPage />} />
+      <Route path="/map" element={<MapPage />} />
+      <Route path="/order" element={<OrderPage />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
 
-function Placeholder({ title }: { title: string }) {
+function NotFound() {
+  const navigate = useNavigate();
   return (
-    <div className="grid min-h-full place-items-center p-8">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-ink">{title}</h1>
-        <p className="mt-2 text-ink-muted">Coming soon.</p>
-      </div>
-    </div>
+    <PageLayout title="Not found">
+      <EmptyState
+        title="Page not found"
+        description="The page you're looking for doesn't exist."
+        action={<Button onClick={() => navigate('/stocks')}>Back to stocks</Button>}
+      />
+    </PageLayout>
   );
 }
