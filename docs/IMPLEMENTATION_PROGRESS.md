@@ -14,13 +14,15 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 
 ## 2. UI kit
 
-- [ ] `PageLayout` (header, nav, content area)
-- [ ] `Button` (variants: primary / secondary)
-- [ ] `Input` (text / number)
-- [ ] `Card`
-- [ ] `Table` / `List`
-- [ ] `Badge` (e.g. "low on" indicator)
-- [ ] Loading / empty states
+- [x] `PageLayout` (header, nav, content area)
+- [x] `Button` (variants: primary / secondary — plus ghost / danger, `loading` state)
+- [x] `Input` (text / number — with label, error, hint)
+- [x] `Card` (+ `CardHeader` / `CardTitle` / `CardBody` / `CardFooter`)
+- [x] `Table` / `List` (generic column-config `Table<T>`, optional row-click + empty slot)
+- [x] `Badge` (e.g. "low on" indicator — neutral / brand / danger / warning / success tones)
+- [x] Loading / empty states (`Spinner`, `LoadingState`, `EmptyState`)
+
+All in `src/ui/` behind the `src/ui/index.ts` barrel; unit-tested (Button, Input, Badge, Table).
 
 ## 3. Data layer
 
