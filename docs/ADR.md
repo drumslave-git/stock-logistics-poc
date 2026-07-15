@@ -79,6 +79,12 @@ The deploy workflow injects a **hash of the secret token** as a build-time varia
 
 Hash algorithm: **SHA-256 via the built-in Web Crypto API** (`crypto.subtle.digest`) — MD5 was considered but is not available in Web Crypto and would require a third-party library, for no benefit. Note that either way this only hides the token value; it does not prevent a determined visitor from bypassing the client-side check (see Trade-offs).
 
+Concrete wiring (`src/lib/auth.ts` + `src/components/AccessGate.tsx`):
+
+- Embedded hash env var: **`VITE_ACCESS_TOKEN_HASH`**, fed from the GitHub Actions secret **`ACCESS_TOKEN_HASH`** at build time. Compute it with `npm run hash-token -- "<token>"`.
+- **When no hash is embedded the gate is open** — so local dev (no secret) runs unguarded; only the deployed build with the secret set is gated.
+- The `localStorage` remember stores the *matched hash* (key `slp.access.hash`), so **rotating the token invalidates every remembered unlock** automatically, since the stored value no longer equals the current embedded hash.
+
 ### Testing
 
 Unit tests with **React Testing Library** (on Vitest, the natural runner for Vite). Priority targets: order/cart logic, delivery calculation (vehicle count, duration), low-stock computation, and the API-simulation module (against a fake/in-memory IndexedDB).

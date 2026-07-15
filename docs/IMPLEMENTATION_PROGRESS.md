@@ -53,9 +53,9 @@ Shared page infra: `src/hooks/useAsync.ts` (loading/error/data + reload), `src/c
 
 ## 6. Access gate & deploy
 
-- [ ] Token gate screen: SHA-256 (Web Crypto) compare against embedded hash, remember in `localStorage`
-- [ ] GitHub Actions workflow: build with token-hash secret, deploy to GitHub Pages
-- [ ] Google Maps API key, referrer-restricted to the Pages origin
+- [x] Token gate screen: SHA-256 (Web Crypto) compare against embedded hash, remember in `localStorage` — `src/lib/auth.ts` + `src/components/AccessGate.tsx` (wraps `<App>` in `src/main.tsx`); gate is open when `VITE_ACCESS_TOKEN_HASH` is unset (dev), and a remembered unlock is invalidated when the token rotates. Hash generator: `npm run hash-token`.
+- [x] GitHub Actions workflow: build with token-hash secret, deploy to GitHub Pages — `.github/workflows/deploy.yml` (lint + test + build on push to `main`, secrets `ACCESS_TOKEN_HASH` / `GOOGLE_MAPS_API_KEY` → `VITE_*` env, `upload-pages-artifact` + `deploy-pages`)
+- [x] Google Maps API key, referrer-restricted to the Pages origin — supplied via the `GOOGLE_MAPS_API_KEY` secret; restriction is a Google Cloud console setting documented in [ADR.md](./ADR.md) Trade-offs and `.env.example`
 
 ## 7. Tests
 
