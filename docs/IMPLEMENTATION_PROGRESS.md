@@ -26,14 +26,14 @@ All in `src/ui/` behind the `src/ui/index.ts` barrel; unit-tested (Button, Input
 
 ## 3. Data layer
 
-- [ ] Entity types (Stock, Item, Vehicle, StockItem, Order)
-- [ ] Fixtures: 10 stocks, 10 items (name, image, weight), helicopter vehicles (max payload, max speed) — deterministic quantities, some items < 10; bundled placeholder SVG images
-- [ ] IndexedDB wrapper: seed on first run, re-seed on version bump
-- [ ] Simulated API module (async, request/response-shaped)
-  - [ ] `getStocks` / `getStock(id)` (with totals and low-stock info)
-  - [ ] `getItems`
-  - [ ] Order placement: transactional decrement of sources, increment of target
-- [ ] Delivery calculation: cargo weight → vehicle count; haversine distance / max speed → duration (multi-source: longest leg)
+- [x] Entity types (Stock, Item, Vehicle, StockItem, Order) — `src/domain/types.ts`
+- [x] Fixtures: 10 stocks, 10 items (name, image, weight), helicopter vehicles (max payload, max speed) — deterministic quantities, some items < 10; bundled placeholder SVG images — `src/data/fixtures.ts`, `src/data/images.ts`
+- [x] IndexedDB wrapper: seed on first run, re-seed on version bump — `src/data/db.ts` (+ `resetData()`)
+- [x] Simulated API module (async, request/response-shaped) — `src/api/index.ts`
+  - [x] `getStocks` / `getStock(id)` (with totals and low-stock info)
+  - [x] `getItems`
+  - [x] Order placement: transactional decrement of sources, increment of target (`placeOrder`; + `estimateDelivery`)
+- [x] Delivery calculation: cargo weight → vehicle count; haversine distance / max speed → duration (multi-source: longest leg) — `src/domain/delivery.ts`
 
 ## 4. Pages
 
